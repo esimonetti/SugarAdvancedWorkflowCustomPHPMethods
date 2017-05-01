@@ -27,4 +27,4 @@ The method customMethodWithOriginalUserOverride, will retrieve the original user
 The implemented functionality allows the user to put a job in the background using a timer, and still act in behalf of the original user, instead of Admin.
 
 ## Sample Screenshot
-![Advanced Workflow Sample Screenshot](https://raw.githubusercontent.com/esimonetti/SugarExternalQueues/master/screenshot.png)
+![Advanced Workflow Sample Screenshot](https://raw.githubusercontent.com/esimonetti/SugarAdvancedWorkflowCustomPHPMethods/master/screenshot.png)
