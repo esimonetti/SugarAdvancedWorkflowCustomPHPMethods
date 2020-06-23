@@ -19,7 +19,7 @@ class PMSECallCustomLogic extends PMSEScriptTask
         $AWFCustomActionLogic = new AWFCustomActionLogic();     
 
         $method = $bpmnElement['act_service_method'];
-        if(!empty($method)) {
+        if (!empty($method)) {
             $AWFCustomActionLogic->callCustomLogic($bean, $method, array(
                 'flowData' => $flowData,
                 'bpmnElement' => $bpmnElement,

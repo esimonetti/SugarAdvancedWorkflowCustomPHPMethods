@@ -11,10 +11,10 @@ class AWFCustomAction
     public $availableMethods = array();
     public $previousUser;
 
-    public function canBeCalled($method, $module)
+    public function methodExists($method, $module)
     {
-        if(!empty($method) && !empty($module) && !empty($this->availableMethods[$module])) {
-            if(in_array($method, $this->availableMethods[$module]) && is_callable(array($this, $method))) {
+        if (!empty($method) && !empty($module) && !empty($this->availableMethods[$module])) {
+            if (in_array($method, $this->availableMethods[$module]) && method_exists($this, $method)) {
                 return true;
             }
         }
@@ -23,7 +23,7 @@ class AWFCustomAction
 
     public function getAvailableModulesApis()
     {
-        if(!empty($this->availableMethods)) {
+        if (!empty($this->availableMethods)) {
             return array_keys($this->availableMethods);
         }
     
@@ -32,18 +32,18 @@ class AWFCustomAction
 
     public function getAvailableApis($module = null)
     {
-        if(empty($module)) {
+        if (empty($module)) {
             return array('success' => false);
         }
 
         $response = array(
             'success' => true,
-            'result' => array()
+            'result' => array(),
         );
 
-        if(!empty($this->availableMethods) && !empty($this->availableMethods[$module])) {
-            foreach($this->availableMethods[$module] as $method) {
-                if(is_callable(array($this, $method))) {
+        if (!empty($this->availableMethods) && !empty($this->availableMethods[$module])) {
+            foreach ($this->availableMethods[$module] as $method) {
+                if (method_exists($this, $method)) {
                     $response['result'][] = array(
                         'value' => $method,
                         'text' => $method,
@@ -60,7 +60,7 @@ class AWFCustomAction
     public function impersonateUser($user)
     {
         global $current_user;
-        if(!empty($user) && $current_user->id != $user->id) {
+        if (!empty($user) && ($current_user->id !== $user->id)) {
             // backup current user
             $this->previousUser = clone($current_user);
             $current_user = clone($user);
@@ -70,7 +70,7 @@ class AWFCustomAction
     public function resetUser()
     {
         global $current_user;
-        if(!empty($this->previousUser->id)) {
+        if (!empty($this->previousUser->id)) {
             // restore current user with previous user
             $current_user = clone($this->previousUser);
             $this->previousUser = null;
@@ -79,19 +79,19 @@ class AWFCustomAction
 
     public function retrieveOriginalUserForProcess($cas_id = null)
     {
-        if(!empty($cas_id)) {
+        if (!empty($cas_id)) {
             // retrieve the first flow record of this process run
             $sugarQuery = new SugarQuery();
-            $sugarQuery->from(BeanFactory::getBean('pmse_BpmFlow'));
+            $sugarQuery->from(BeanFactory::newBean('pmse_BpmFlow'));
             $sugarQuery->select(array('id', 'created_by'));
             $sugarQuery->where()->equals('cas_id', $cas_id);
             $sugarQuery->where()->equals('cas_index', '1');
             $sugarQuery->limit(1);
             $records = $sugarQuery->execute();
 
-            if(!empty($records) && !empty($records['0']) && !empty($records['0']['created_by'])) {
+            if (!empty($records) && !empty($records['0']) && !empty($records['0']['created_by'])) {
                 $override_user = BeanFactory::getBean('Users', $records['0']['created_by']);
-                if(!empty($override_user->id) && $override_user->id != '1') {
+                if (!empty($override_user->id) && $override_user->id !== '1') {
                     return $override_user;
                 }
             }
@@ -109,12 +109,16 @@ class AWFCustomAction
             // logic will have to apply to the executing logic, based on the method called
 
             $override_user = null;
-            if(!empty($additional_info['flowData']['cas_id'])) {
+            if (!empty($additional_info['flowData']['cas_id'])) {
                 $override_user = $this->retrieveOriginalUserForProcess($additional_info['flowData']['cas_id']);
             }
 
-            if($this->canBeCalled($method, $b->module_name)) {
-                return $this->$method($b, $override_user, $additional_info);
+            if ($this->methodExists($method, $b->module_name)) {
+                try {
+                    return call_user_func_array(array($this, $method), array($b, $override_user, $additional_info));
+                } catch (Exception $e) {
+                    return false;
+                }
             }
         }
 

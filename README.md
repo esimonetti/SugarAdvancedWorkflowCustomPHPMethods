@@ -14,9 +14,13 @@ With the implemented functionality it is possible to find out the originating us
 * Tested on Linux
 
 ## Installation
-* Copy the full folder structure within your SugarCRM system
-* Run a quick repair and rebuild
-* Make sure the browser's cache is purged, so that the Advanced Workflow custom action displays.
+* Clone the repository and enter the cloned directory
+* Modify the required code on `src/custom/modules/pmse_Project/AWFCustomActionLogic.php`
+* Retrieve the Sugar Module Packager dependency by running either `composer install`
+* Generate the installable .zip Sugar module within the `releases` directory with ``./vendor/bin/package `cat version` ``
+* Install the generated module into the instance
+* Execute a Repair and Rebuild
+* Make sure the browser's cache is purged, so that the Advanced Workflow custom action displays
 * Make sure cron is running successfully
 
 ## PHP Customisations

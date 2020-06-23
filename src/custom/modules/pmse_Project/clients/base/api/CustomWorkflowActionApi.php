@@ -6,7 +6,7 @@
 // 2017-04-27
 // Tested on Sugar 7.8.2.0
 
-if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
+if (!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
 
 SugarAutoLoader::load('custom/modules/pmse_Project/AWFCustomActionLogic.php');
 
@@ -38,7 +38,7 @@ class CustomWorkflowActionApi extends SugarApi
 
     public function getAvailableApis($api, $args) {
 
-        if(empty($args['module'])) {
+        if (empty($args['module'])) {
             return array('success' => false);
         }
 
